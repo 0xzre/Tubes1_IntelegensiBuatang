@@ -8,12 +8,10 @@ public class MinimaxBot extends Bot{
     private int beta = 64;
     private static final int ROW = 8;
     private static final int COL = 8;
-    private static Instant startTime;
     private final int maxDepthCheck = 5;
 
     @Override
     public int[] move(int roundsLeft, boolean isBotFirst, int playerOScore, int playerXScore, Button[][] buttons, boolean isMaximizingX) {
-        startTime = Instant.now();
         int maxDepth = roundsLeft * 2 - 1;
 
         int curDepth = 0;
@@ -26,12 +24,10 @@ public class MinimaxBot extends Bot{
 
         this.alpha = -64;
         this.beta = 64;
-//        System.out.println("Makssssss: " + maxValues[0]);
         return new int[]{maxValues[1], maxValues[2]};
     }
 
     public int[] max(int playerOScore, int playerXScore, int curDepth, int maxDepth, Button[][] buttons, boolean isBotFirst, boolean isMaxingX) {
-        System.out.println("max:" + alpha + " " + beta);
         int[] maxValues = new int[3];
         int maxVal = -64;
         int maxRow = -1;
@@ -44,11 +40,6 @@ public class MinimaxBot extends Bot{
             maxValues[0] = curPlayerOScore - curPlayerXScore;
             maxValues[1] = maxRow;
             maxValues[2] = maxCol;
-            //=========================
-            Instant endTime = Instant.now();
-            Duration duration = Duration.between(startTime, endTime);
-            System.out.println(duration.toMillis() + " - " +curDepth);
-            //=========================
             return maxValues;
         }
 
@@ -72,13 +63,6 @@ public class MinimaxBot extends Bot{
 
                     curPlayerOScore = playerOScore;
                     curPlayerXScore = playerXScore;
-//                    curButtons = new Button[ROW][COL];
-//                    for (int k = 0; k < ROW; k++) {
-//                        for (int l = 0; l < COL; l++) {
-//                            curButtons[k][l] = new Button(buttons[k][l].getText()); // Create a new Button with the same properties
-//                        }
-//                    }
-
                     curButtons[i][j].setText("");
 
                     if (minValues[0] > maxVal) {
@@ -101,16 +85,10 @@ public class MinimaxBot extends Bot{
         maxValues[0] = maxVal;
         maxValues[1] = maxRow;
         maxValues[2] = maxCol;
-        //=========================
-        Instant endTime = Instant.now();
-        Duration duration = Duration.between(startTime, endTime);
-        System.out.println(duration.toMillis() + " - " +curDepth);
-        //=========================
         return maxValues;
     }
 
     public int[] min(int playerOScore, int playerXScore, int curDepth, int maxDepth, Button[][] buttons, boolean isBotFirst, boolean isMaxingX) {
-//        System.out.println("min:" + alpha + " " + beta);
         int[] minValues = new int[3];
         int minVal = 64;
         int minRow = -1;
@@ -123,11 +101,6 @@ public class MinimaxBot extends Bot{
             minValues[0] = curPlayerOScore - curPlayerXScore;
             minValues[1] = minRow;
             minValues[2] = minCol;
-            //=========================
-            Instant endTime = Instant.now();
-            Duration duration = Duration.between(startTime, endTime);
-//            System.out.println(duration.toMillis() + " - " +curDepth);
-            //=========================
             return minValues;
         }
 
@@ -175,11 +148,8 @@ public class MinimaxBot extends Bot{
         minValues[0] = minVal;
         minValues[1] = minRow;
         minValues[2] = minCol;
-        //=========================
-        Instant endTime = Instant.now();
-        Duration duration = Duration.between(startTime, endTime);
-//        System.out.println(duration.toMillis() + " - " +curDepth);
-        //=========================
         return minValues;
     }
+
+
 }
