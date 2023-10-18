@@ -78,22 +78,6 @@ public class GeneticBot extends Bot{
         return Arrays.copyOf(res,index);
     }
 
-    public int[] generateRandomMove(int[][] fromArr, int[][] except) {
-        int[] selected = new int[2];
-        Random random = new Random();
-        int selectednum = random.nextInt(fromArr.length);
-        selected[0] = fromArr[selectednum][0];
-        selected[1] = fromArr[selectednum][1];
-
-        while (contains(except,selected)) {
-            selectednum = random.nextInt(fromArr.length);
-            selected[0] = fromArr[selectednum][0];
-            selected[1] = fromArr[selectednum][1];
-        }
-
-        return selected;
-    }
-
     public static int[][][] cross(int[][] arr1, int[][] arr2, int cpoint) {
         int[][] offspring1 = new int[arr1.length][];
         int[][] offspring2 = new int[arr2.length][];
@@ -110,22 +94,6 @@ public class GeneticBot extends Bot{
 
         int[][][] offspring = { offspring1, offspring2 };
         return offspring;
-    }
-
-    public int[][] mutate(int[][] arr) {
-        Random random = new Random();
-        int MUTATION_POINT = random.nextInt(arr.length);
-        int[][] res = new int[arr.length][];
-        for (int i = 0;i<selectedDepth;i++) {
-            if (i == MUTATION_POINT) {
-                int[] mut = generateRandomMove(availableMoves, arr);
-                res[i] = mut;
-            } else {
-                res[i] = arr[i];
-            }
-        }
-
-        return res;
     }
 
     public int[][] getPartition(int[][] arr, int point){
@@ -325,10 +293,7 @@ public class GeneticBot extends Bot{
             generation_count++;
         }
         evaluateList(offspring, evalList);
-//
         int maxVal = getMaxIdx(evalList);
-//        System.out.println(offspring[maxVal][0][0] + " H " + offspring[maxVal][0][1]);
-//        return offspring[maxVal][0];
 
         return new int[]{offspring[maxVal][0][0],offspring[maxVal][0][1]};
     }
