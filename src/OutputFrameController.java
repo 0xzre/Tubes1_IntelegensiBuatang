@@ -381,9 +381,9 @@ public class OutputFrameController {
         int[] botMove;
 
         if (playerXTurn) {
-            botMove = this.botX.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons, true);
+            botMove = this.botX.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons);
         } else {
-            botMove = this.botO.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons, false);
+            botMove = this.botO.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons);
         }
 
         int i = botMove[0];
