@@ -168,11 +168,11 @@ public class GeneticBot extends Bot{
                 return 0;
             }
             if (this.localIsMaximizingX) {
-                curButtons[(arr[i][0])][(arr[i][1])].setText("O");
+                curButtons[(b[0])][(b[1])].setText("O");
             } else {
-                curButtons[(arr[i][0])][(arr[i][1])].setText("X");
+                curButtons[(b[0])][(b[1])].setText("X");
             }
-            difference = updateGameBoard(true, (arr[i][0]), (arr[i][1]), curButtons);
+            difference = updateGameBoard(true, (b[0]), (b[1]), curButtons);
         }
 
         int playerXScore = 0;
