@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -44,13 +45,16 @@ public class OutputFrameController {
     @FXML
     private Label playerOScoreLabel;
 
-
+    private boolean isBotVsBot;
+    private String chosenAlgorithmBot1;
+    private String chosenAlgorithmBot2;
     private boolean playerXTurn;
     private int playerXScore;
     private int playerOScore;
     private int roundsLeft;
     private boolean isBotFirst;
-    private Bot bot;
+    private Bot botO;
+    private Bot botX;
 
 
     private static final int ROW = 8;
@@ -69,7 +73,11 @@ public class OutputFrameController {
      * @param isBotFirst True if bot is first, false otherwise.
      *
      */
-    void getInput(String name1, String name2, String rounds, boolean isBotFirst){
+    void getInput(String gameMode, String algorithmBot1, String algorithmBot2,
+                  String name1, String name2, String rounds, boolean isBotFirst){
+        this.isBotVsBot = gameMode.equals("Bot vs Bot");
+        this.chosenAlgorithmBot1 = algorithmBot1;
+        this.chosenAlgorithmBot2 = algorithmBot2;
         this.playerXName.setText(name1);
         this.playerOName.setText(name2);
         this.roundsLeftLabel.setText(rounds);
@@ -77,18 +85,31 @@ public class OutputFrameController {
         this.isBotFirst = isBotFirst;
 
         // Start bot
-        this.bot = new Bot();
+        switch (chosenAlgorithmBot2) {
+            case ("Minimax"):
+                this.botO = new MinimaxBot();
+                break;
+        }
+
+        if (isBotVsBot) {
+            switch (chosenAlgorithmBot1) {
+                case ("Minimax"):
+                    this.botX = new MinimaxBot();
+                    break;
+            }
+        }
+    }
+
+    void startGame() {
         this.playerXTurn = !isBotFirst;
-        if (this.isBotFirst) {
+        if (this.isBotFirst || this.isBotVsBot) {
             this.moveBot();
         }
     }
 
-
-
     /**
      * Construct the 8x8 game board by creating a total of 64 buttons in a 2
-     * dimensional array, and construct the 8x2 score board for scorekeeping
+     * dimensional array, and construct the 8x2 score board for score keeping
      * and then initialize turn and score.
      *
      */
@@ -215,6 +236,10 @@ public class OutputFrameController {
 
                 if (!isBotFirst && this.roundsLeft == 0) { // Game has terminated.
                     this.endOfGame();       // Determine & announce the winner.
+                }
+
+                if (isBotVsBot) {
+                    Platform.runLater(this::moveBot);
                 }
             }
         }
@@ -353,7 +378,14 @@ public class OutputFrameController {
     }
 
     private void moveBot() {
-        int[] botMove = this.bot.move(this.roundsLeft, !this.playerXTurn, this.playerOScore, this.playerXScore, this.buttons);
+        int[] botMove;
+
+        if (playerXTurn) {
+            botMove = this.botX.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons, true);
+        } else {
+            botMove = this.botO.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons, false);
+        }
+
         int i = botMove[0];
         int j = botMove[1];
 
