@@ -16,7 +16,7 @@ public class MinimaxBot extends Bot{
 
         int curDepth = 0;
         int[] maxValues;
-        if (isMaximizingX == true) {
+        if (isMaximizingX) {
             maxValues = min(playerOScore, playerXScore, curDepth, maxDepth, buttons, isBotFirst, isMaximizingX);
         } else {
             maxValues = max(playerOScore, playerXScore, curDepth, maxDepth, buttons, isBotFirst, isMaximizingX);
