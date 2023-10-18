@@ -59,7 +59,4 @@ public abstract class Bot {
     }
 
     public abstract int[] move(int roundsLeft, boolean isBotFirst, int playerOScore, int playerXScore, Button[][] buttons, boolean isMaximizingX);
-
-    // TODO :  LOKEL SCERACH
-    // TODO : GENEREIK RSEARCH
 }

@@ -9,16 +9,31 @@ public class GeneticBot extends Bot{
     private static final int ROW = 8;
     private static final int COL = 8;
     private static Instant startTime;
-    private final int POPULATION_COUNT = 10;
+    private final int POPULATION_COUNT = 20;
     private final int maxDepthCheck = 5;
-    private final double MUTATION_CHANCE = 0.05;
+    private final double MUTATION_CHANCE = 0.5;
+    private final int GENERATION_COUNT= 10;
     private int[][] availableMoves;
     private int selectedDepth;
+
+    private Bot local = new LocalBot();
+    private int localRoundsLeft;
+    private boolean localIsBotFirst;
+    private int localPlayerOScore;
+    private int localPlayerXScore;
+    private Button[][] localButtons;
+    private boolean localIsMaximizingX;
 
     @Override
     public int[] move(int roundsLeft, boolean isBotFirst, int playerOScore, int playerXScore, Button[][] buttons,
                       boolean isMaximizingX) {
         startTime = Instant.now();
+        this.localRoundsLeft = roundsLeft;
+        this.localIsBotFirst = isBotFirst;
+        this.localPlayerOScore = playerOScore;
+        this.localPlayerXScore = playerXScore;
+        this.localButtons = buttons;
+        this.localIsMaximizingX = isMaximizingX;
         int maxDepth = roundsLeft;
         availableMoves = getAvailableMoves(buttons);
 
@@ -45,44 +60,37 @@ public class GeneticBot extends Bot{
         }
         return false;
     }
-    public static int[][] append(int[][] matrix, int[] array,int index) {
-        int[][] newMatrix = new int[matrix.length][];
-
-        // Copy existing elements
-        for (int i = 0; i < index; i++) {
-            newMatrix[i][0] = matrix[i][0];
-            newMatrix[i][1] = matrix[i][1];
-        }
-
-        // Append new array
-        newMatrix[index][0] = array[0];
-        newMatrix[index][1] = array[1];
-
-        return newMatrix;
-    }
     public int[][] getAvailableMoves(Button[][] buttons) {
         int[][] res = new int[56][];
         int index = 0;
         for (int i = 0; i<ROW;i++) {
             for (int j = 0; j<COL; j++) {
                 if (buttons[i][j].getText().equals("")) {
-                    int[] temp = new int[]{i,j};
-                    append(res,temp,index);
+                    res[index] = new int[2];
+                    res[index][0] = i;
+                    res[index][1] = j;
+
+                    index++;
                 }
             }
         }
+
         return Arrays.copyOf(res,index);
     }
 
     public int[] generateRandomMove(int[][] fromArr, int[][] except) {
         int[] selected = new int[2];
         Random random = new Random();
-        while (!contains(except,selected)) {
-            selected = fromArr[random.nextInt(fromArr.length)];
+        int selectednum = random.nextInt(fromArr.length);
+        selected[0] = fromArr[selectednum][0];
+        selected[1] = fromArr[selectednum][1];
+
+        while (contains(except,selected)) {
+            selectednum = random.nextInt(fromArr.length);
+            selected[0] = fromArr[selectednum][0];
+            selected[1] = fromArr[selectednum][1];
         }
-        for (int i = 0; i < 2; i++) {
-            System.out.println(selected[i]);
-        }
+
         return selected;
     }
 
@@ -122,33 +130,67 @@ public class GeneticBot extends Bot{
 
     public int[][] getPartition(int[][] arr, int point){
         if (point+1<arr.length) {
-            int[][] res = new int[arr.length - point - 1][];
+            int[][] res = new int[arr.length - point + 1][];
             for (int i = point + 1; i < arr.length; i++) {
-                System.out.println(arr[i]);
-                res[i] = arr[i];
+                res[i-(point+1)] = new int[2];
+                res[i-(point+1)][0] = arr[i][0];
+                res[i-(point+1)][1] = arr[i][1];
             }
             return res;
         }
-        int[][] res = new int[0][];
+        int[][] res = new int[0][2];
         return res;
     }
 
     public int fitnessValue(int[][] arr) {
+        Button[][] curButtons = new Button[ROW][COL];
+        for (int i = 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
+                curButtons[i][j] = new Button(this.localButtons[i][j].getText()); // Create a new Button with the same properties
+            }
+        }
         int eval = 0;
-        int [][] listOfAction = new int[selectedDepth*2][];
+        int difference = 0;
         for (int i = 0; i<selectedDepth;i++) {
-            listOfAction[2*i] = arr[i];
-            int[] b = {0,0}; //get best action from local
+
+            if (this.localIsMaximizingX) {
+                curButtons[(arr[i][0])][(arr[i][1])].setText("X");
+            } else {
+                curButtons[(arr[i][0])][(arr[i][1])].setText("O");
+            }
+            difference = updateGameBoard(true, (arr[i][0]), (arr[i][1]), curButtons);
+            int[] b = new int[2];
+            b = this.local.move(this.localRoundsLeft, this.localIsBotFirst, this.localPlayerOScore, this.localPlayerXScore,
+                    curButtons, !(this.localIsMaximizingX));
+
+
             if (contains(getPartition(arr,i),b)) {
                 return 0;
             }
-            listOfAction[2*i+1] = b;
+            if (this.localIsMaximizingX) {
+                curButtons[(arr[i][0])][(arr[i][1])].setText("O");
+            } else {
+                curButtons[(arr[i][0])][(arr[i][1])].setText("X");
+            }
+            difference = updateGameBoard(true, (arr[i][0]), (arr[i][1]), curButtons);
         }
-        return evaluateActions(listOfAction);
-    }
 
-    public int evaluateActions(int[][] list) {
-        return 1;
+        int playerXScore = 0;
+        int playerOScore = 0;
+        for (int i= 0; i < ROW; i++) {
+            for (int j = 0; j < COL; j++) {
+                if (curButtons[i][j].getText().equals("X")) {
+                    playerXScore++;
+                } else if (curButtons[i][j].getText().equals("O")) {
+                    playerOScore++;
+                }
+            }
+        }
+        if (localIsMaximizingX) {
+            return playerXScore-playerOScore;
+        }
+
+        return playerOScore-playerXScore;
     }
 
     public void evaluateList(int[][][] arr, int[] list){
@@ -188,8 +230,14 @@ public class GeneticBot extends Bot{
         int i = 0;
         Random random = new Random();
         int sel = random.nextInt(sum);
-        while (sel>sumList[i]) {
-            i++;
+        boolean loop = true;
+        while (sel>sumList[i] && loop) {
+            if (i < sumList.length-1) {
+                i++;
+            } else {
+                loop = false;
+            }
+
         }
         return arr[i];
 
@@ -210,13 +258,16 @@ public class GeneticBot extends Bot{
     public int[] genetic() {
         //Generate base population
         int[][][] base = new int[POPULATION_COUNT][selectedDepth][];
+        Random random = new Random();
+
         for (int i=0; i<POPULATION_COUNT;i++) {
             for (int j=0; j<selectedDepth;j++) {
-                base[i][j]=generateRandomMove(availableMoves,base[i]);
-                System.out.println(base[i][j][0]);
+                base[i][j] = new int[2];
+                int selectednum = random.nextInt(availableMoves.length);
+                base[i][j][0] = availableMoves[selectednum][0];
+                base[i][j][1] = availableMoves[selectednum][1];
             }
         }
-        Random random = new Random();
         //Selection
         int generation_count = 1;
         int[] evalList = new int[POPULATION_COUNT];
@@ -229,6 +280,7 @@ public class GeneticBot extends Bot{
             offspring[i] = getOffspring(base,sums,totalsum);
         }
 
+
         for (int j = 0; j<Math.floorDiv(offspring.length,2);j++) {
             int[][][] crossed = cross(offspring[j],offspring[j+1],Math.floorDiv(selectedDepth,2));
             offspring[j] = crossed[0];
@@ -237,11 +289,15 @@ public class GeneticBot extends Bot{
 
         for (int k = 0; k< offspring.length; k++) {
             if (random.nextInt(101) < MUTATION_CHANCE * 100) {
-                mutate(offspring[k]);
+                int selectednum = random.nextInt(availableMoves.length);
+                int mutation_point = random.nextInt(offspring[k].length);
+                offspring[k][mutation_point][0] = availableMoves[selectednum][0];
+                offspring[k][mutation_point][1] = availableMoves[selectednum][1];
             }
         }
 
-        while (generation_count<15) {
+
+        while (generation_count<GENERATION_COUNT) {
             evaluateList(offspring, evalList);
             sums = selectionlist(evalList);
             totalsum = sumList(evalList);
@@ -249,6 +305,7 @@ public class GeneticBot extends Bot{
             for (int i = 0; i<POPULATION_COUNT;i++) {
                 offspring[i] = getOffspring(base,sums,totalsum);
             }
+
 
             for (int j = 0; j<Math.floorDiv(offspring.length,2);j++) {
                 int[][][] crossed = cross(offspring[j],offspring[j+1],Math.floorDiv(selectedDepth,2));
@@ -258,21 +315,22 @@ public class GeneticBot extends Bot{
 
             for (int k = 0; k< offspring.length; k++) {
                 if (random.nextInt(101) < MUTATION_CHANCE * 100) {
-                    mutate(offspring[k]);
+                    int selectednum = random.nextInt(availableMoves.length);
+                    int mutation_point = random.nextInt(offspring[k].length);
+                    offspring[k][mutation_point][0] = availableMoves[selectednum][0];
+                    offspring[k][mutation_point][1] = availableMoves[selectednum][1];
                 }
             }
 
             generation_count++;
         }
         evaluateList(offspring, evalList);
-
+//
         int maxVal = getMaxIdx(evalList);
+//        System.out.println(offspring[maxVal][0][0] + " H " + offspring[maxVal][0][1]);
+//        return offspring[maxVal][0];
 
-        return offspring[maxVal][0];
+        return new int[]{offspring[maxVal][0][0],offspring[maxVal][0][1]};
     }
-
-
-
-
 
 }
