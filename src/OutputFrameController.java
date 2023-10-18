@@ -89,12 +89,18 @@ public class OutputFrameController {
             case ("Minimax"):
                 this.botO = new MinimaxBot();
                 break;
+            case ("Local Search"):
+                this.botO = new LocalBot();
+                break;
         }
 
         if (isBotVsBot) {
             switch (chosenAlgorithmBot1) {
                 case ("Minimax"):
                     this.botX = new MinimaxBot();
+                    break;
+                case ("Local Search"):
+                    this.botX = new LocalBot();
                     break;
             }
         }
@@ -381,9 +387,9 @@ public class OutputFrameController {
         int[] botMove;
 
         if (playerXTurn) {
-            botMove = this.botX.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons);
+            botMove = this.botX.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons, true);
         } else {
-            botMove = this.botO.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons);
+            botMove = this.botO.move(this.roundsLeft, this.isBotFirst, this.playerOScore, this.playerXScore, this.buttons, false);
         }
 
         int i = botMove[0];

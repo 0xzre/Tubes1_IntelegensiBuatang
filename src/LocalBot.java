@@ -3,6 +3,7 @@ import javafx.scene.control.Button;
 import java.util.*;
 
 public class LocalBot extends Bot {
+
     @Override
     public int[] move(int roundsLeft, boolean isBotFirst, int playerOScore, int playerXScore, Button[][] buttons,
                       boolean isMaximizingX) {
