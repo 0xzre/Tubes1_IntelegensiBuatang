@@ -1,10 +1,15 @@
 import javafx.scene.control.Button;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class Bot {
     private int alpha = -64;
     private int beta = 64;
     private static final int ROW = 8;
     private static final int COL = 8;
+    private static Instant startTime;
+    private final int maxDepthCheck = 5;
 
     private int updateGameBoard(boolean isBot, int i, int j, Button[][] buttons) {
         // Value of indices to control the lower/upper bound of rows and columns
@@ -61,6 +66,7 @@ public class Bot {
     }
 
     public int[] move(int roundsLeft, boolean isBotFirst, int playerOScore, int playerXScore, Button[][] buttons) {
+        startTime = Instant.now();
         int maxDepth = roundsLeft * 2 - 1;
 
         int curDepth = 0;
@@ -80,10 +86,15 @@ public class Bot {
         int curPlayerOScore = playerOScore;
         int curPlayerXScore = playerXScore;
 
-        if (curDepth == maxDepth || curDepth == 5) {
+        if (curDepth == maxDepth || curDepth == maxDepthCheck) {
             maxValues[0] = curPlayerOScore - curPlayerXScore;
             maxValues[1] = maxRow;
             maxValues[2] = maxCol;
+            //=========================
+            Instant endTime = Instant.now();
+            Duration duration = Duration.between(startTime, endTime);
+            System.out.println(duration.toMillis() + " - " +curDepth);
+            //=========================
             return maxValues;
         }
 
@@ -107,12 +118,14 @@ public class Bot {
 
                     curPlayerOScore = playerOScore;
                     curPlayerXScore = playerXScore;
-                    curButtons = new Button[ROW][COL];
-                    for (int k = 0; k < ROW; k++) {
-                        for (int l = 0; l < COL; l++) {
-                            curButtons[k][l] = new Button(buttons[k][l].getText()); // Create a new Button with the same properties
-                        }
-                    }
+//                    curButtons = new Button[ROW][COL];
+//                    for (int k = 0; k < ROW; k++) {
+//                        for (int l = 0; l < COL; l++) {
+//                            curButtons[k][l] = new Button(buttons[k][l].getText()); // Create a new Button with the same properties
+//                        }
+//                    }
+
+                    curButtons[i][j].setText("");
 
                     if (minValues[0] > maxVal) {
                         maxVal = minValues[0];
@@ -134,6 +147,11 @@ public class Bot {
         maxValues[0] = maxVal;
         maxValues[1] = maxRow;
         maxValues[2] = maxCol;
+        //=========================
+        Instant endTime = Instant.now();
+        Duration duration = Duration.between(startTime, endTime);
+        System.out.println(duration.toMillis() + " - " +curDepth);
+        //=========================
         return maxValues;
     }
 
@@ -146,10 +164,15 @@ public class Bot {
         int curPlayerOScore = playerOScore;
         int curPlayerXScore = playerXScore;
 
-        if (curDepth == maxDepth || curDepth == 5) {
+        if (curDepth == maxDepth || curDepth == maxDepthCheck) {
             minValues[0] = curPlayerOScore - curPlayerXScore;
             minValues[1] = minRow;
             minValues[2] = minCol;
+            //=========================
+            Instant endTime = Instant.now();
+            Duration duration = Duration.between(startTime, endTime);
+            System.out.println(duration.toMillis() + " - " +curDepth);
+            //=========================
             return minValues;
         }
 
@@ -165,7 +188,7 @@ public class Bot {
                 if (curButtons[i][j].getText().equals("")) {
                     curButtons[i][j].setText("X");
 
-                    int difference = updateGameBoard(true, i, j, curButtons);
+                    int difference = updateGameBoard(false, i, j, curButtons);
                     curPlayerOScore -= difference;
                     curPlayerXScore += (difference + 1);
 
@@ -173,12 +196,15 @@ public class Bot {
 
                     curPlayerOScore = playerOScore;
                     curPlayerXScore = playerXScore;
-                    curButtons = new Button[ROW][COL];
-                    for (int k = 0; k < ROW; k++) {
-                        for (int l = 0; l < COL; l++) {
-                            curButtons[k][l] = new Button(buttons[k][l].getText()); // Create a new Button with the same properties
-                        }
-                    }
+//                    curButtons = new Button[ROW][COL];
+//                    for (int k = 0; k < ROW; k++) {
+//                        for (int l = 0; l < COL; l++) {
+//                            curButtons[k][l] = new Button(buttons[k][l].getText()); // Create a new Button with the same properties
+//                        }
+//                    }
+
+                    curButtons[i][j].setText("");
+
 
                     if (maxValues[0] < minVal) {
                         minVal = maxValues[0];
@@ -200,6 +226,11 @@ public class Bot {
         minValues[0] = minVal;
         minValues[1] = minRow;
         minValues[2] = minCol;
+        //=========================
+        Instant endTime = Instant.now();
+        Duration duration = Duration.between(startTime, endTime);
+        System.out.println(duration.toMillis() + " - " +curDepth);
+        //=========================
         return minValues;
     }
 
