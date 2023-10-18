@@ -126,16 +126,20 @@ public class GeneticBot extends Bot{
 
     public int fitnessValue(int[][] arr) {
         int eval = 0;
-
+        int [][] listOfAction = new int[selectedDepth*2][];
         for (int i = 0; i<selectedDepth;i++) {
-            //do a1
+            listOfAction[2*i] = arr[i];
             int[] b = {0,0}; //get best action from local
             if (contains(getPartition(arr,i),b)) {
                 return 0;
             }
-            //do b1
+            listOfAction[2*i+1] = b;
         }
-        return 0; //return board evaluation
+        return evaluateActions(listOfAction);
+    }
+
+    public int evaluateActions(int[][] list) {
+        return 0;
     }
 
     public void evaluateList(int[][][] arr, int[] list){
