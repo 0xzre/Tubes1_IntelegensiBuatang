@@ -35,7 +35,9 @@ public class LocalBot extends Bot {
                         curPlayerOScore += (difference + 1);
                         curValue = curPlayerOScore-playerOScore;
                     }
-                    objectiveValues.add(List.of(curValue, i, j));
+                    if (curValue >= 0) {
+                        objectiveValues.add(List.of(curValue, i, j));
+                    }
                 }
 
                 restoreButtons(curButtons, buttons);
