@@ -92,6 +92,9 @@ public class OutputFrameController {
             case ("Local Search"):
                 this.botO = new LocalBot();
                 break;
+            case ("Genetic"):
+                this.botO = new GeneticBot();
+                break;
         }
 
         if (isBotVsBot) {
@@ -101,6 +104,9 @@ public class OutputFrameController {
                     break;
                 case ("Local Search"):
                     this.botX = new LocalBot();
+                    break;
+                case ("Genetic"):
+                    this.botX = new GeneticBot();
                     break;
             }
         }
