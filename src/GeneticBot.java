@@ -1,6 +1,7 @@
 
 import javafx.scene.control.Button;
 
+import java.sql.SQLOutput;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -15,7 +16,8 @@ public class GeneticBot extends Bot{
     private int selectedDepth;
 
     @Override
-    public int[] move(int roundsLeft, boolean isBotFirst, int playerOScore, int playerXScore, Button[][] buttons) {
+    public int[] move(int roundsLeft, boolean isBotFirst, int playerOScore, int playerXScore, Button[][] buttons,
+                      boolean isMaximizingX) {
         startTime = Instant.now();
         int maxDepth = roundsLeft;
         availableMoves = getAvailableMoves(buttons);
@@ -43,37 +45,43 @@ public class GeneticBot extends Bot{
         }
         return false;
     }
-    public static int[][] append(int[][] matrix, int[] array) {
-        int[][] newMatrix = new int[matrix.length + 1][];
+    public static int[][] append(int[][] matrix, int[] array,int index) {
+        int[][] newMatrix = new int[matrix.length][];
 
         // Copy existing elements
-        for (int i = 0; i < matrix.length; i++) {
-            newMatrix[i] = matrix[i];
+        for (int i = 0; i < index; i++) {
+            newMatrix[i][0] = matrix[i][0];
+            newMatrix[i][1] = matrix[i][1];
         }
 
         // Append new array
-        newMatrix[matrix.length] = array;
+        newMatrix[index][0] = array[0];
+        newMatrix[index][1] = array[1];
 
         return newMatrix;
     }
     public int[][] getAvailableMoves(Button[][] buttons) {
-        int[][] res = new int[0][];
+        int[][] res = new int[56][];
+        int index = 0;
         for (int i = 0; i<ROW;i++) {
             for (int j = 0; j<COL; j++) {
-                if (buttons[i][j].getText()=="") {
-                    int[] temp = {i,j};
-                    append(res,temp);
+                if (buttons[i][j].getText().equals("")) {
+                    int[] temp = new int[]{i,j};
+                    append(res,temp,index);
                 }
             }
         }
-        return res;
+        return Arrays.copyOf(res,index);
     }
 
     public int[] generateRandomMove(int[][] fromArr, int[][] except) {
-        int[] selected = new int[];
+        int[] selected = new int[2];
         Random random = new Random();
         while (!contains(except,selected)) {
             selected = fromArr[random.nextInt(fromArr.length)];
+        }
+        for (int i = 0; i < 2; i++) {
+            System.out.println(selected[i]);
         }
         return selected;
     }
@@ -116,6 +124,7 @@ public class GeneticBot extends Bot{
         if (point+1<arr.length) {
             int[][] res = new int[arr.length - point - 1][];
             for (int i = point + 1; i < arr.length; i++) {
+                System.out.println(arr[i]);
                 res[i] = arr[i];
             }
             return res;
@@ -139,7 +148,7 @@ public class GeneticBot extends Bot{
     }
 
     public int evaluateActions(int[][] list) {
-        return 0;
+        return 1;
     }
 
     public void evaluateList(int[][][] arr, int[] list){
@@ -204,6 +213,7 @@ public class GeneticBot extends Bot{
         for (int i=0; i<POPULATION_COUNT;i++) {
             for (int j=0; j<selectedDepth;j++) {
                 base[i][j]=generateRandomMove(availableMoves,base[i]);
+                System.out.println(base[i][j][0]);
             }
         }
         Random random = new Random();
