@@ -17,15 +17,20 @@ public class MinimaxBot extends Bot{
         int maxDepth = roundsLeft * 2 - 1;
 
         int curDepth = 0;
-        int[] maxValues = max(playerOScore, playerXScore, curDepth, maxDepth, buttons, isBotFirst);
+        int[] maxValues;
+        if (isMaximizingX == true) {
+            maxValues = min(playerOScore, playerXScore, curDepth, maxDepth, buttons, isBotFirst, isMaximizingX);
+        } else {
+            maxValues = max(playerOScore, playerXScore, curDepth, maxDepth, buttons, isBotFirst, isMaximizingX);
+        }
 
         this.alpha = -64;
         this.beta = 64;
-        System.out.println("Makssssss: " + maxValues[0]);
+//        System.out.println("Makssssss: " + maxValues[0]);
         return new int[]{maxValues[1], maxValues[2]};
     }
 
-    public int[] max(int playerOScore, int playerXScore, int curDepth, int maxDepth, Button[][] buttons, boolean isBotFirst) {
+    public int[] max(int playerOScore, int playerXScore, int curDepth, int maxDepth, Button[][] buttons, boolean isBotFirst, boolean isMaxingX) {
         System.out.println("max:" + alpha + " " + beta);
         int[] maxValues = new int[3];
         int maxVal = -64;
@@ -59,11 +64,11 @@ public class MinimaxBot extends Bot{
                 if (curButtons[i][j].getText().equals("")) {
                     curButtons[i][j].setText("O");
 
-                    int difference = updateGameBoard(true, i, j, curButtons);
+                    int difference = updateGameBoard(!isMaxingX, i, j, curButtons);
                     curPlayerOScore += (difference + 1);
                     curPlayerXScore -= difference;
 
-                    int[] minValues = min(curPlayerOScore, curPlayerXScore, curDepth + 1, maxDepth, curButtons, isBotFirst);
+                    int[] minValues = min(curPlayerOScore, curPlayerXScore, curDepth + 1, maxDepth, curButtons, isBotFirst, isMaxingX);
 
                     curPlayerOScore = playerOScore;
                     curPlayerXScore = playerXScore;
@@ -104,7 +109,7 @@ public class MinimaxBot extends Bot{
         return maxValues;
     }
 
-    public int[] min(int playerOScore, int playerXScore, int curDepth, int maxDepth, Button[][] buttons, boolean isBotFirst) {
+    public int[] min(int playerOScore, int playerXScore, int curDepth, int maxDepth, Button[][] buttons, boolean isBotFirst, boolean isMaxingX) {
 //        System.out.println("min:" + alpha + " " + beta);
         int[] minValues = new int[3];
         int minVal = 64;
@@ -138,11 +143,11 @@ public class MinimaxBot extends Bot{
                 if (curButtons[i][j].getText().equals("")) {
                     curButtons[i][j].setText("X");
 
-                    int difference = updateGameBoard(false, i, j, curButtons);
+                    int difference = updateGameBoard(isMaxingX, i, j, curButtons);
                     curPlayerOScore -= difference;
                     curPlayerXScore += (difference + 1);
 
-                    int[] maxValues = max(curPlayerOScore, curPlayerXScore, curDepth + 1, maxDepth, curButtons, isBotFirst);
+                    int[] maxValues = max(curPlayerOScore, curPlayerXScore, curDepth + 1, maxDepth, curButtons, isBotFirst, isMaxingX);
 
                     // Cleaning for the next iteration
                     curPlayerOScore = playerOScore;
@@ -177,7 +182,4 @@ public class MinimaxBot extends Bot{
         //=========================
         return minValues;
     }
-
-    // TODO :  LOKEL SCERACH
-    // TODO : GENEREIK RSEARCH
 }
